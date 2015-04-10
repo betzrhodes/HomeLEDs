@@ -127,7 +127,7 @@ html <- @"
             <!-- JavaScript File -->
             <script>
               $(document).ready(function() {
-                var agentURL = 'https://agent.electricimp.com/FqHdojwCKJMF'
+                var agentURL = 'YOUR AGENT URL HERE'
                 getState(initialzeSlider);
 
                 $('button').on('click', translateButtonClick);
