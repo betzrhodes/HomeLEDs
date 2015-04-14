@@ -197,8 +197,14 @@ app.get("/state", function(context) {
 app.post("/state", function(context) {
     local data = http.jsondecode(context.req.body) //turn JSON data into table
     led.state = data.state.tofloat();
-    server.save(led); //store state to server
+    local saved = server.save(led); //store state to server
     device.send("state", led.state); //update device with state from webpage
     context.send("OK"); //send response back to webpage
-    server.log(led.state)
+    
+    server.log("received new led level of " + led.state);
+    if (saved == 0) { 
+        server.log("State stored to server"); 
+    } else {
+        server.log("Server save failed. Error: " + err.tostring());
+    }
 });
