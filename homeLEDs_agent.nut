@@ -182,7 +182,7 @@ app <- Rocky(); //create an instance of rocky - sets up framework for a restful 
 led <- { "state" : 0 }; //sets default LED state to OFF
 
 local settings = server.load(); //gets stored state from server
-if (settings.len() != 0) {led = settings}; //if server has data then update current state
+if ("state" in settings) { led = settings }; //if server has a stored state then update current state
 
 device.on("getState" function(msg) {
     device.send("state", led.state); //sends state to device
