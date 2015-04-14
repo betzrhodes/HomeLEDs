@@ -159,7 +159,7 @@ state <- 0; //sets up state variable
 
 // ----------------- Run Time ----------------------
 function setState(state) {
-    server.log(state);
+    server.log("changing led level to " + state);
     led.write(state);
 }
 
