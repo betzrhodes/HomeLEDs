@@ -203,7 +203,7 @@ app.post("/state", function(context) {
     
     server.log("received new led level of " + led.state);
     if (saved == 0) { 
-        server.log("State stored to server"); 
+        server.log("State stored to server");
     } else {
         server.log("Server save failed. Error: " + err.tostring());
     }
