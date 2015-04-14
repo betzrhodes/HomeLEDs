@@ -134,7 +134,6 @@ html <- @"
 
                 function translateButtonClick(e){
                   var state = e.currentTarget.dataset.state;
-                  sendState(state);
                   setSlider(state);
                 }
 
@@ -180,21 +179,41 @@ html <- @"
 // -------------------------- Run Time ---------------------------
 
 app <- Rocky(); //create an instance of rocky - sets up framework for a restful API
-led <- { "state" : 0 }; //sets initial LED state to OFF
-device.send("state", led.state) //sends state to device
+led <- { "state" : 0 }; //sets default LED state to OFF
+
+local settings = server.load(); //gets stored state from server
+if (settings.len() != 0) {led = settings}; //if server has data then update current state
+
+device.on("getState" function(msg) {
+    device.send("state", led.state); //sends state to device
+});
 
 app.get("/", function(context) {
     context.send(200, html); //render HTML to agent's URL
-})
+});
 
 app.get("/state", function(context) {
     context.send({ state = led.state }) //send current state to website
-})
+});
 
 app.post("/state", function(context) {
     local data = http.jsondecode(context.req.body) //turn JSON data into table
-    led.state = data.state.tofloat();
-    device.send("state", data.state.tofloat()); //update device with state from webpage
-    context.send("OK"); //send response back to webpage
-    server.log(led.state)
+    try {
+        if ("state" in data) {
+            led.state = data.state.tofloat();
+            local saved = server.save(led); //store state to server
+            device.send("state", led.state); //update device with state from webpage
+            context.send("OK"); //send response back to webpage
+            server.log("received new led level of " + led.state);
+            if (saved == 0) {
+                server.log("State stored to server");
+            } else {
+                server.log("Server save failed. Error: " + err.tostring());
+            }
+        } else {
+            throw "Missing param: state";
+        }
+    } catch (ex) {
+        context.send(400, ex)
+    }
 });
