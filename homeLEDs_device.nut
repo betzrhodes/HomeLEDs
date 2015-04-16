@@ -153,7 +153,7 @@ cm.ondisconnect(function(reason=null) {
 });
 
 // --------------- Configure LEDs ------------------
-led <- hardware.pin2
+led <- hardware.pin5
 led.configure(PWM_OUT, 1.0 / 400.0, 0.0)
 state <- 0; //sets up state variable
 
