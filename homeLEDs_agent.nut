@@ -886,7 +886,6 @@ html <- @"
             <!-- JavaScript File -->
             <script>
               window.onload = function() {
-                console.log('loading page ' + new Date())
                 var IB = new ImpBase();
                 var sliderState = 0;
 
