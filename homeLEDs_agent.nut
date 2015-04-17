@@ -764,6 +764,12 @@ html <- @"
             <meta name='description' content>
             <meta name='author' content>
             <title>HomeLEDs</title>
+            <script>
+                var source = document.URL + '/data/impbase.js';
+                var script = document.createElement('script');
+                script.src = source;
+                document.getElementsByTagName('head')[0].appendChild(script);
+            </script>
 
             <style>
               h1 {
@@ -874,14 +880,13 @@ html <- @"
               <button id='off' data-state='0'>OFF</button>
             </div>
 
-
             <!-- jQuery -->
             <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
             <script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
-            <SCRIPT src='https://agent.electricimp.com/Cq0zvg1JNhJP/data/impbase.js'></SCRIPT>
             <!-- JavaScript File -->
             <script>
-              $(document).ready(function() {
+              window.onload = function() {
+                console.log('loading page ' + new Date())
                 var IB = new ImpBase();
                 var sliderState = 0;
 
@@ -933,7 +938,7 @@ html <- @"
                     }
                 }
 
-              })
+              }
             </script>
 
           </body>
