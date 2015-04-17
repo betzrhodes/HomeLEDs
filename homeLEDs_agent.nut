@@ -790,9 +790,25 @@ html <- @"
                 text-align: center;
               }
 
+              #authorize-div {
+                margin: 5% auto;
+                width: 80%;
+                text-align: center;
+              }
+
               #slider {
                 width: 60%;
                 margin: 2% auto 4%;
+              }
+
+              #output {
+                margin: 5% auto;
+                width: 80%;
+                text-align: center;
+              }
+
+              .hidden {
+                  display: none;
               }
 
               /*! jQuery UI - v1.11.4 - 2015-04-03
@@ -879,6 +895,11 @@ html <- @"
               <button id='on' data-state='1'>ON</button>
               <button id='off' data-state='0'>OFF</button>
             </div>
+            <div id='authorize-div' class='hidden buttons'>
+                <span>Authorize access to calendar</span>
+                <button id='authorize-button' onclick='handleAuthClick(event)'>Authorize</button>
+            </div>
+            <pre id='output'></pre>
 
             <!-- jQuery -->
             <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
@@ -939,6 +960,108 @@ html <- @"
 
               }
             </script>
+
+            <script type='text/javascript'>
+                var CLIENT_ID = '1025864128577-3ol05p2cq051ql8kb3igtv4c0fs1p4f7.apps.googleusercontent.com';
+                var SCOPES = ['https://www.googleapis.com/auth/calendar'];
+
+              /**
+               * Check if current user has authorized this application.
+               */
+                function checkAuth() {
+                    gapi.auth.authorize({
+                        'client_id': CLIENT_ID,
+                        'scope': SCOPES,
+                        'immediate': true
+                    }, handleAuthResult);
+                }
+
+              /**
+               * Handle response from authorization server.
+               *
+               * @param {Object} authResult Authorization result.
+               */
+                function handleAuthResult(authResult) {
+                    var authorizeDiv = $('#authorize-div');
+                    if (authResult && !authResult.error) {
+                        // Hide auth UI, then load Calendar client library.
+                        authorizeDiv.addClass('hidden');
+                        loadCalendarApi();
+                    } else {
+                        // Show auth UI, allowing the user to initiate authorization by
+                        // clicking authorize button.
+                        authorizeDiv.removeClass('hidden');
+                    }
+                }
+
+              /**
+               * Initiate auth flow in response to user clicking authorize button.
+               *
+               * @param {Event} event Button click event.
+               */
+                function handleAuthClick(event) {
+                    gapi.auth.authorize(
+                        {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+                        handleAuthResult);
+                    return false;
+                }
+
+              /**
+               * Load Google Calendar client library. List upcoming events
+               * once client library is loaded.
+               */
+                function loadCalendarApi() {
+                    gapi.client.load('calendar', 'v3', listUpcomingEvents);
+                }
+
+              /**
+               * Print the summary and start datetime/date of the next ten events in
+               * the authorized user's calendar. If no events are found an
+               * appropriate message is printed.
+               */
+                function listUpcomingEvents() {
+                    var request = gapi.client.calendar.events.list({
+                        'calendarId': 'electricimp.com_3sq7cej7r0g4st9g4eat8atb88@group.calendar.google.com',
+                        'timeMin': (new Date()).toISOString(),
+                        'showDeleted': false,
+                        'singleEvents': true,
+                        'maxResults': 10,
+                        'orderBy': 'startTime'
+                    });
+
+                    request.execute(function(resp) {
+                        var events = resp.items;
+                        appendPre('Upcoming events:');
+
+                        if (events.length > 0) {
+                            for (i = 0; i < events.length; i++) {
+                                var event = events[i];
+                                var when = event.start.dateTime;
+                                if (!when) {
+                                    when = event.start.date;
+                                }
+                                appendPre(event.summary + ' (' + when + ')')
+                            }
+                        } else {
+                            appendPre('No upcoming events found.');
+                        }
+
+                    });
+                }
+
+              /**
+               * Append a pre element to the body containing the given message
+               * as its text node.
+               *
+               * @param {string} message Text to be placed in pre element.
+               */
+                function appendPre(message) {
+                    var pre = document.getElementById('output');
+                    var textContent = document.createTextNode(message + '\n');
+                    pre.appendChild(textContent);
+                }
+            </script>
+            <script src='https://apis.google.com/js/client.js?onload=checkAuth'></script>
 
           </body>
         </html>
