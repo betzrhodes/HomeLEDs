@@ -731,9 +731,7 @@ impbase <- ImpBase(app, "/data"); //create an instance of impbase - db for realt
 
 led <- { "state" : 0 }; //sets default LED state to OFF
 local settings = impbase.once("/"); //gets data from ImpBase
-if ("state" in settings) {
-    led = settings //set the local state to stored setting
-} else {
+if (!("state" in settings)) {
     impbase.put("/", led); //stores default to impbase
 }
 
@@ -745,15 +743,15 @@ device.on("getState" function(msg) {
     }
 });
 
-app.get("/", function(context) {
-    context.send(200, html); //render HTML to agent's URL
-});
-
 impbase.on("/", "value", function(snapshot) {
     server.log("impbase change "+http.jsonencode(snapshot));
     if ("state" in snapshot) {
         device.send("state", snapshot.state);
     }
+});
+
+app.get("/", function(context) {
+    context.send(200, html); //render HTML to agent's URL
 });
 
 html <- @"
@@ -884,7 +882,6 @@ html <- @"
             <!-- JavaScript File -->
             <script>
               $(document).ready(function() {
-                var agentURL = 'https://agent.electricimp.com/Cq0zvg1JNhJP'
                 var IB = new ImpBase();
                 var sliderState = 0;
 
@@ -900,7 +897,7 @@ html <- @"
 
                 function sendState(state) {
                     if(state != sliderState) {
-                        console.log('updating IB ' + sliderState)
+                        console.log('Sending '+ sliderState +' to IB at ' + new Date());
                         IB.update({ 'state' : sliderState });
                     }
                 }
@@ -929,11 +926,9 @@ html <- @"
                 }
 
                 function handleIBChange(snapshot) {
-                    console.log('IB changed ');
-                    console.log(snapshot.val());
+                    console.log('IB change registered. Snapshot value: ' + JSON.stringify(snapshot.val()) + ' Time Received: ' + new Date());
 
-                    if('state' in snapshot.val()) {
-                        if(snapshot.val().state != sliderState);
+                    if('state' in snapshot.val() && snapshot.val().state != sliderState ) {
                         setSlider(snapshot.val().state);
                     }
                 }
