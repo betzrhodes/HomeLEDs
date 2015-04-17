@@ -962,7 +962,7 @@ html <- @"
             </script>
 
             <script type='text/javascript'>
-                var CLIENT_ID = '1025864128577-3ol05p2cq051ql8kb3igtv4c0fs1p4f7.apps.googleusercontent.com';
+                var CLIENT_ID = '<client id here>';
                 var SCOPES = ['https://www.googleapis.com/auth/calendar'];
 
               /**
@@ -1021,7 +1021,7 @@ html <- @"
                */
                 function listUpcomingEvents() {
                     var request = gapi.client.calendar.events.list({
-                        'calendarId': 'electricimp.com_3sq7cej7r0g4st9g4eat8atb88@group.calendar.google.com',
+                        'calendarId': '<cal id here>',
                         'timeMin': (new Date()).toISOString(),
                         'showDeleted': false,
                         'singleEvents': true,
